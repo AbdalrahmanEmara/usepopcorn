@@ -55,21 +55,27 @@ export default function App() {
 
   return (
     <>
-      <Navbar movies={movies} />
+      <Navbar>
+        <NumResults movies={movies} />
+      </Navbar>
 
-      <Main movies={movies} />
+      <Main>
+        <ListBox>
+          <MoviesList movies={movies} />
+        </ListBox>
+      </Main>
     </>
   );
 }
 
-function Navbar({ movies }) {
+function Navbar({ children }) {
   const [query, setQuery] = useState("");
 
   return (
     <nav className="nav-bar">
       <Logo />
       <Search query={query} setQuery={setQuery} />
-      <NumResults movies={movies} />
+      {children}
     </nav>
   );
 }
@@ -103,18 +109,19 @@ function NumResults({ movies }) {
   );
 }
 
-function Main({ movies }) {
-  const [isOpen1, setIsOpen1] = useState(true);
+function Main({ children }) {
 
   return (
     <main className="main">
-      <ListBox isOpen1={isOpen1} setIsOpen1={setIsOpen1} movies={movies} />
+      {children}
       <WatchedBox />
     </main>
   );
 }
 
-function ListBox({ isOpen1, setIsOpen1, movies }) {
+function ListBox({ children }) {
+  const [isOpen1, setIsOpen1] = useState(true);
+
   return (
     <div className="box">
       <button
@@ -122,7 +129,7 @@ function ListBox({ isOpen1, setIsOpen1, movies }) {
         onClick={() => setIsOpen1((open) => !open)}>
         {isOpen1 ? "–" : "+"}
       </button>
-      {isOpen1 && <MoviesList movies={movies} />}
+      {isOpen1 && children}
     </div>
   );
 }
