@@ -54,7 +54,7 @@ const average = (arr) =>
 const key = "5d181a1e";
 
 export default function App() {
-  const [query, setQuery] = useState("interstellar");
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -100,7 +100,7 @@ export default function App() {
           setError("");
         } catch (err) {
           if(err.name !== "AbortError") {
-            console.error(err.message);
+            console.log(err.message);
             setError(err.message);
           }
         } finally {
@@ -114,6 +114,7 @@ export default function App() {
         return;
       }
 
+      handleCloseMovie();
       fetchMovies();
 
       return function() {
@@ -192,7 +193,7 @@ function Logo() {
   );
 }
 
-function Search({ query, setQuery }) {
+function Search({ query, setQuery, onCloseMovie }) {
   return (
     <input
       className="search"
@@ -315,11 +316,25 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
       return function () {
         document.title = "usePopcorn";
-        console.log(`clean up effect for movie ${title}`);
+        // console.log(`clean up effect for movie ${title}`);
       };
     },
     [title]
   );
+
+  useEffect(function() {
+    function callBack(e) {
+      if(e.code === 'Escape') {
+        onCloseMovie();
+      }
+    }
+
+    document.addEventListener('keydown', callBack);
+
+    return function() {
+      document.removeEventListener('keydown', callBack);
+    } 
+  }, [onCloseMovie])
 
   return (
     <div className="details">
