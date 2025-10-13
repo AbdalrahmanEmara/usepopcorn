@@ -63,8 +63,6 @@ export default function App() {
 
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
-
-    // localStorage.setItem('watched', JSON.stringify([...watched, movie]));
   }
 
   function handleRemoveWatched(id) {
@@ -280,19 +278,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     imdbRating,
   } = movie;
 
-  // if(imdbRating > 6) [isTop, useIsTop] = useState(false);
-  // if(imdbRating > 6) return <p>Hello</p>;
-
-  // const [isTop, setIsTop] = useState(imdbRating > 8);
-  // useEffect(function() {
-  //   setIsTop(imdbRating > 8);
-  // }, [imdbRating]);
-
-  const isTop = imdbRating > 8;
-  console.log(isTop);
-
-  // const [avgRating, setAvgRating] = useState(0);
-
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedId,
@@ -306,10 +291,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
     onAddWatched(newWatchedMovie);
     onCloseMovie();
-
-    // setAvgRating(a => Number(imdbRating));
-    // setAvgRating((avgRating) => (avgRating + userRating) / 2);
-    // console.log(avgRating);
   }
 
   useEffect(
@@ -378,7 +359,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
               </p>
             </div>
           </header>
-          {/* <p>{avgRating}</p> */}
+
           <section>
             <div className="rating">
               {!isWatched ? (
