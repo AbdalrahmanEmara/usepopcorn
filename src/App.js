@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import StarRating from "./StarRating.js";
-
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -15,11 +14,10 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null);
 
   // const [watched, setWatched] = useState([]);
-  const [watched, setWatched] = useState(function() {
+  const [watched, setWatched] = useState(function () {
     const storedValue = localStorage.getItem("watched");
     return JSON.parse(storedValue);
   });
-
 
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
@@ -48,7 +46,8 @@ export default function App() {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${key}&s=${query}`, {signal: controller.signal}
+            `http://www.omdbapi.com/?apikey=${key}&s=${query}`,
+            { signal: controller.signal }
           );
 
           if (!res.ok)
@@ -61,7 +60,7 @@ export default function App() {
           setMovies((movies) => data.Search);
           setError("");
         } catch (err) {
-          if(err.name !== "AbortError") {
+          if (err.name !== "AbortError") {
             console.log(err.message);
             setError(err.message);
           }
@@ -79,16 +78,19 @@ export default function App() {
       handleCloseMovie();
       fetchMovies();
 
-      return function() {
+      return function () {
         controller.abort();
-      }
+      };
     },
     [query]
   );
 
-  useEffect(function() {
-    localStorage.setItem('watched', JSON.stringify(watched));
-  }, [watched])
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
 
   return (
     <>
@@ -159,7 +161,26 @@ function Logo() {
   );
 }
 
-function Search({ query, setQuery, onCloseMovie }) {
+function Search({ query, setQuery }) {
+  const inputEl = useRef(null);
+
+  useEffect(function () {
+    function callback(e) {
+      if (document.activeElement === inputEl.current) return;
+
+      if (e.code === "Enter") {
+        inputEl.current.focus();
+        setQuery("");
+      }
+    }
+
+    return () => document.addEventListener("keydown", callback);
+  }, [setQuery]);
+  // useEffect(function() {
+  //   const el = document.querySelector('.search');
+  //   el.focus();
+  // }, [])
+
   return (
     <input
       className="search"
@@ -167,6 +188,7 @@ function Search({ query, setQuery, onCloseMovie }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
@@ -225,6 +247,13 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState("");
+
+  const countRef = useRef(0);
+
+  useEffect(function() {
+    if(userRating) countRef.current++;
+  }, [userRating]);
+
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedId
@@ -243,6 +272,8 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     imdbID,
     imdbRating,
   } = movie;
+
+
 
   // if(imdbRating > 6) [isTop, useIsTop] = useState(false);
   // if(imdbRating > 6) return <p>Hello</p>;
@@ -266,6 +297,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatched(newWatchedMovie);
@@ -305,19 +337,22 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     [title]
   );
 
-  useEffect(function() {
-    function callBack(e) {
-      if(e.code === 'Escape') {
-        onCloseMovie();
+  useEffect(
+    function () {
+      function callBack(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+        }
       }
-    }
 
-    document.addEventListener('keydown', callBack);
+      document.addEventListener("keydown", callBack);
 
-    return function() {
-      document.removeEventListener('keydown', callBack);
-    } 
-  }, [onCloseMovie])
+      return function () {
+        document.removeEventListener("keydown", callBack);
+      };
+    },
+    [onCloseMovie]
+  );
 
   return (
     <div className="details">
